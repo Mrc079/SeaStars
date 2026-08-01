@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071a28">
+  <title>SEA STARS · Görev Kontrol</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="identity">
+      <span class="logo" aria-hidden="true">SS</span>
+      <div><strong>SEA STARS</strong><small>Denizaltı kontrol istasyonu · v3.4.1</small></div>
+    </div>
+    <div class="top-status">
+      <button class="top-action" id="openCalibrationButton">Donanım ayarları</button>
+      <span class="status-pill offline" id="connectionPill"><i></i><span>Bağlantı yok</span></span>
+      <span class="clock" id="clock">--:--:--</span>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="safety-strip" aria-label="Güvenlik kontrolleri">
+      <button class="estop" id="estopButton"><span class="stop-icon">■</span><span>ACİL STOP</span><small>ESC</small></button>
+      <div class="safety-summary">
+        <div><span class="label">Sistem</span><strong id="safetyText">GÜVENLİ / DISARMED</strong></div>
+        <div><span class="label">Telemetri</span><strong id="telemetryText">BEKLENİYOR</strong></div>
+        <div><span class="label">Otonomi</span><strong id="autoStartSummary">KAPALI</strong></div>
+        <div><span class="label">Güç sınırı</span><strong id="powerLimitText">%100</strong></div>
+      </div>
+      <button class="button danger-outline hidden" id="clearEstopButton">STOP KİLİDİNİ KALDIR</button>
+    </section>
+
+    <section class="connection-card card">
+      <div class="section-heading">
+        <div><span class="eyebrow">BAĞLANTI</span><h1>STM32 kontrol bağlantısı</h1></div>
+        <span class="mode-badge" id="modeBadge">DONANIM</span>
+      </div>
+      <div class="connection-controls">
+        <label><span>Seri port</span><select id="portSelect"><option>Aranıyor…</option></select></label>
+        <button class="button secondary" id="refreshButton">Yenile</button>
+        <button class="button primary" id="connectButton">Bağlan</button>
+      </div>
+      <p class="connection-note" id="connectionNote">Bir port seçip bağlantıyı başlatın.</p>
+    </section>
+
+    <nav class="workspace-tabs" aria-label="Çalışma alanları">
+      <button class="active" data-tab-target="manual">MANUEL KONTROL</button>
+      <button data-tab-target="autonomy">OTONOMİ</button>
+    </nav>
+
+    <section class="dashboard-grid always-visible">
+      <article class="card attitude-card">
+        <div class="section-heading compact">
+          <div><span class="eyebrow">BNO055</span><h2>Yön ve duruş</h2></div>
+          <span class="live-dot" id="imuLive">VERİ YOK</span>
+        </div>
+        <div class="attitude-body">
+          <div class="compass" aria-label="Pusula">
+            <div class="compass-face"><span class="north">K</span><span class="east">D</span><span class="south">G</span><span class="west">B</span><div class="needle" id="compassNeedle"></div><i></i></div>
+            <strong id="headingValue">---°</strong><small>HEADING</small>
+          </div>
+          <div class="angles">
+            <div class="angle-row"><span>Roll</span><div class="angle-track"><i id="rollBar"></i><b></b></div><strong id="rollValue">--°</strong></div>
+            <div class="angle-row"><span>Pitch</span><div class="angle-track"><i id="pitchBar"></i><b></b></div><strong id="pitchValue">--°</strong></div>
+            <div class="calibration"><span>Kalibrasyon</span><div id="calibrationBlocks"></div></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card event-card">
+        <div class="section-heading compact">
+          <div><span class="eyebrow">OLAYLAR</span><h2>Canlı sistem kaydı</h2></div>
+          <button class="text-button" id="clearLogButton">Temizle</button>
+        </div>
+        <div class="event-log" id="eventLog"><div class="empty-log">Henüz olay yok.</div></div>
+      </article>
+    </section>
+
+    <div class="tab-panel active" data-tab-panel="manual">
+      <section class="card control-section">
+        <div class="section-heading">
+          <div><span class="eyebrow">BALAST DENEYİ</span><h2>Step motorlu tanklar</h2></div>
+          <span class="section-help">Yüzde deneylerini burada yapın, bulduğunuz değerleri Otonomi sekmesine kaydedin.</span>
+        </div>
+        <div class="tank-grid" id="tankGrid"></div>
+        <div class="linked-control">
+          <div><strong>İki tankı senkron ayarla</strong><small>Yüzde, kaydedilmiş tam strok adımına göre hesaplanır.</small></div>
+          <div class="preset-row" data-both-tanks>
+            <button data-percent="0">%0</button><button data-percent="10">%10</button><button data-percent="20">%20</button><button data-percent="30">%30</button><button data-percent="50">%50</button><button data-percent="75">%75</button><button data-percent="100">%100</button>
+          </div>
+          <form class="numeric-percent linked-percent" id="bothTankPercentForm">
+            <label>Özel hedef <input id="bothTankPercent" type="number" min="0" max="100" step="1" value="0" required><span>%</span></label>
+            <button type="submit">UYGULA</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="card control-section propulsion-section">
+        <div class="section-heading">
+          <div><span class="eyebrow">TAHRİK</span><h2>Fırçasız iticiler</h2></div>
+          <span class="section-help">İlk sıfırdan farklı komut ESC’leri içten etkinleştirir.</span>
+        </div>
+        <div class="arm-panel auto-arm-panel">
+          <div><span class="arm-indicator" id="armIndicator"><i></i> DISARMED</span><p>Manuel ARM düğmesi yoktur. Sayfa odağı veya heartbeat kaybolursa iticiler otomatik durur.</p></div>
+          <div class="arm-actions"><button class="button secondary" id="disarmButton">İTİCİLERİ DURDUR / DISARM</button></div>
+        </div>
+        <div class="thruster-grid" id="thrusterGrid"></div>
+        <div class="both-thrusters">
+          <div class="thruster-title"><span>BAĞLI KONTROL</span><strong>İki itici</strong></div>
+          <div class="power-readout" id="bothPower">0<small>%</small></div>
+          <input class="power-slider" id="bothThrusterSlider" type="range" min="-100" max="100" step="5" value="0" aria-label="İki itici gücü">
+          <div class="slider-labels"><span>GERİ</span><span>BOŞTA</span><span>İLERİ</span></div>
+        </div>
+        <form class="manual-thruster-panel" id="manualThrusterForm">
+          <div><strong>Sayısal manuel güç</strong><small>Eksi geri, artı ileri yöndür. Acil stop her zaman önceliklidir.</small></div>
+          <label>İskele % <input class="manual-thruster-control" id="manualLeftPercent" type="number" min="-100" max="100" step="1" value="0" required></label>
+          <label>Sancak % <input class="manual-thruster-control" id="manualRightPercent" type="number" min="-100" max="100" step="1" value="0" required></label>
+          <button class="button primary manual-thruster-control" type="submit">DEĞERLERİ UYGULA</button>
+          <button class="button stop-both manual-thruster-control" id="manualThrusterStop" type="button">İKİSİNİ DURDUR</button>
+        </form>
+        <div class="maneuver-panel">
+          <div><strong>Hazır manevralar</strong><small>Basılı kontroller bırakılınca durur; açılı dönüşler IMU ile kapanır.</small></div>
+          <div class="maneuver-buttons">
+            <button class="mini-button hold-maneuver" data-left="-25" data-right="-25">GERİ</button>
+            <button class="mini-button hold-maneuver" data-left="-22" data-right="22">SOLA DÖN</button>
+            <button class="mini-button hold-maneuver" data-left="25" data-right="25">İLERİ</button>
+            <button class="mini-button hold-maneuver" data-left="22" data-right="-22">SAĞA DÖN</button>
+            <button class="mini-button" data-turn="-90">SOL 90°</button><button class="mini-button" data-turn="90">SAĞ 90°</button><button class="mini-button" data-turn="180">180°</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card developer-card hidden" id="developerCard">
+        <div class="section-heading compact"><div><span class="eyebrow">GELİŞTİRİCİ</span><h2>Ham komut</h2></div><span class="warning-label">İticiler etkinken kapalı</span></div>
+        <form id="commandForm"><input id="commandInput" maxlength="100" autocomplete="off" placeholder="Örn. STATUS"><button class="button secondary">Gönder</button></form>
+      </section>
+    </div>
+
+    <div class="tab-panel" data-tab-panel="autonomy">
+      <section class="autonomy-grid">
+        <article class="card autonomy-settings-card">
+          <div class="section-heading">
+            <div><span class="eyebrow">ROTA AYARI</span><h2>Otonomi profili</h2></div>
+            <span class="mode-badge" id="routeBadge">TEST</span>
+          </div>
+          <form id="autonomyForm" class="autonomy-form">
+            <div class="open-loop-warning">
+              <strong>D300 kullanılmıyor — açık çevrim dalış</strong>
+              <span>BNO055 derinliği ölçemez. Dalış/askıda değerleri havuz deneyiyle bulunmalı; yanlış değer araçta kontrolsüz batma veya erken yüzeye çıkma oluşturabilir.</span>
+            </div>
+            <fieldset>
+              <legend>Başlatma ve rota</legend>
+              <div class="field-grid two">
+                <label>Rota <select name="route"><option value="test">Test rotası</option><option value="competition">Görev rotası</option></select><small>Önce test rotasını doğrulayın.</small></label>
+                <label>Otomatik başlatma <select name="autoStartEnabled"><option value="false">Kapalı</option><option value="true">Açık</option></select><small>Kapalıyken kendiliğinden görev başlamaz.</small></label>
+                <label>Başlatma bekleme süresi <input type="number" name="autoStartDelay" min="1" max="86400" step="1" required><small>saniye · STM32 bağlantısı ve ayar aktarımından sonra</small></label>
+              </div>
+              <label class="danger-check"><input type="checkbox" name="autoZeroTanks"><span><b>Açılışta tankları sıfır kabul et</b><small>Yalnız iki tank fiziksel olarak tamamen boşken güç verileceği garanti ediliyorsa açın. Limit anahtarı yoktur.</small></span></label>
+            </fieldset>
+            <fieldset>
+              <legend>Dalış ve askıda kalma profili</legend>
+              <div class="field-grid two">
+                <label>Dalış balastı <input type="number" name="diveBallast" min="0" max="100" step="1" required><small>% tam strok</small></label>
+                <label>Dalışta bekleme <input type="number" name="diveSeconds" min="0.5" max="120" step="0.5" required><small>saniye</small></label>
+                <label>Askıda balast <input type="number" name="hoverBallast" min="0" max="100" step="1" required><small>% tam strok</small></label>
+                <label>Askıda dengeleme <input type="number" name="hoverSettle" min="0" max="60" step="0.5" required><small>saniye</small></label>
+              </div>
+              <div class="capture-row"><span>Şu anki iki tank ortalamasını kullan:</span><button class="mini-button" id="captureDiveButton" type="button">DALIŞ DEĞERİNE AL</button><button class="mini-button" id="captureHoverButton" type="button">ASKIDA DEĞERİNE AL</button></div>
+            </fieldset>
+            <fieldset id="testRouteFields">
+              <legend>Test rotası</legend>
+              <div class="field-grid two">
+                <label>İleri test süresi <input type="number" name="testForwardSeconds" min="1" max="120" step="0.5" required><small>saniye</small></label>
+                <label>İleri test gücü <input type="number" name="testForwardPower" min="0" max="100" step="1" required><small>% · ilk testte düşük tutun</small></label>
+              </div>
+            </fieldset>
+            <fieldset id="competitionRouteFields">
+              <legend>Görev rotası</legend>
+              <div class="field-grid two">
+                <label>Her düz etap <input type="number" name="straightSeconds" min="15" max="120" step="0.5" required><small>saniye · en az 15</small></label>
+                <label>Düz gidiş gücü <input type="number" name="forwardPower" min="1" max="100" step="1" required><small>%</small></label>
+                <label>Daire ileri gücü <input type="number" name="circleForward" min="1" max="100" step="1" required><small>%</small></label>
+                <label>Daire dönüş farkı <input type="number" name="circleTurn" min="1" max="100" step="1" required><small>% · 1 m çap için havuzda ayarlayın</small></label>
+                <label>Heading Kp <input type="number" name="headingKp" min="0.05" max="5" step="0.05" required><small>% / derece</small></label>
+              </div>
+            </fieldset>
+            <div class="form-actions"><span id="autonomyStatus">Ayar değişiklikleri STM32’ye aktarılır.</span><button class="button primary" type="submit">OTONOMİ AYARLARINI KAYDET</button></div>
+          </form>
+        </article>
+
+        <article class="card mission-card">
+          <div class="section-heading compact">
+            <div><span class="eyebrow">CANLI OTONOMİ</span><h2 id="missionTitle">Test rotası</h2></div>
+            <span class="mode-badge" id="missionState">HAZIR</span>
+          </div>
+          <div class="mission-body">
+            <div class="countdown-display" id="countdownDisplay"><span>OTOMATİK BAŞLATMA</span><strong id="countdownValue">KAPALI</strong></div>
+            <div class="route" id="missionRoute"></div>
+            <div class="mission-meta"><span>Etap süresi <strong id="missionElapsed">0.0 sn</strong></span><span>Hata <strong id="missionFault">YOK</strong></span></div>
+            <div class="mission-actions">
+              <button class="button secondary" id="missionPrepareButton">SAYACI YENİDEN HAZIRLA</button>
+              <button class="button danger-outline-light" id="missionAbortButton">GÖREVİ İPTAL ET / BALASTI BOŞALT</button>
+            </div>
+            <ol class="sequence-note">
+              <li>Sayaç boyunca motor çıkışları kapalıdır.</li>
+              <li>Süre dolunca ESC’ler içten etkinleşir ve dalış profili başlar.</li>
+              <li>Görev bitince iticiler kapanır, tank hedefleri %0 yapılır.</li>
+            </ol>
+          </div>
+        </article>
+      </section>
+    </div>
+  </main>
+
+  <dialog class="settings-dialog" id="settingsDialog">
+    <form id="settingsForm">
+      <div class="dialog-header"><div><span class="eyebrow">DONANIM AYARI</span><h2>Tank ve IMU kalibrasyonu</h2></div><button type="button" class="dialog-close" id="closeSettingsButton" aria-label="Kapat">×</button></div>
+      <div class="settings-content">
+        <fieldset><legend>Balast tam strok kalibrasyonu</legend><p>Tank fiziksel olarak tamamen boşken kart konumunu “Sıfırla” ile 0 yapın. Ardından manuel jog ile tam dolu noktayı bulun ve adım değerini kaydedin.</p><div class="field-grid two"><label>Tank 1 tam strok <input type="number" name="tank1Full" min="0" max="1000000" required><small>adım · 0 = ayarsız</small></label><label>Tank 2 tam strok <input type="number" name="tank2Full" min="0" max="1000000" required><small>adım · 0 = ayarsız</small></label></div></fieldset>
+        <fieldset><legend>IMU yön ve denge</legend><div class="field-grid two"><label>Heading ofseti <input type="number" name="headingOffset" min="-180" max="180" step="0.1" required><small>derece</small></label><label>Heading artış yönü <select name="headingSign"><option value="1">Saat yönü pozitif</option><option value="-1">Saat yönü negatif</option></select></label><label>Denge ekseni <select name="balanceAxis"><option value="roll">Roll · tanklar sağ/sol</option><option value="pitch">Pitch · tanklar ön/arka</option><option value="disabled">Diferansiyel denge kapalı</option></select></label><label>Tank düzeltme yönü <select name="balanceSign"><option value="1">Normal</option><option value="-1">Ters</option></select></label><label>Denge Kp <input type="number" name="levelKp" min="0" max="5" step="0.05" required><small>tank farkı % / derece</small></label><label>Maksimum tank farkı <input type="number" name="maxBalance" min="0" max="40" step="1" required><small>%</small></label></div><button type="button" class="button secondary inline-calibration" id="headingZeroButton">MEVCUT YÖNÜ 0° YAP</button></fieldset>
+      </div>
+      <div class="dialog-footer"><span id="settingsStatus">Ayarlar bilgisayara ve bağlıysa STM32’ye kaydedilir.</span><button type="button" class="button secondary" id="cancelSettingsButton">Vazgeç</button><button class="button primary">DONANIM AYARLARINI KAYDET</button></div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="/app.js"></script>
+</body>
+</html>

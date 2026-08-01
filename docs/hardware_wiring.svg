@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="960" viewBox="0 0 1400 960" role="img" aria-labelledby="title desc">
+  <title id="title">SEA STARS STM32 donanım bağlantı şeması</title>
+  <desc id="desc">NUCLEO-L152RE, dört pinli BNO055 veya BNO085 IMU, iki step sürücü, iki ESC ve otonomide kullanılmayan opsiyonel D300 bağlantıları.</desc>
+  <defs>
+    <style>
+      text{font-family:Segoe UI,Arial,sans-serif;fill:#102432}.title{font-size:30px;font-weight:800}.subtitle{font-size:14px;fill:#526875}.box{fill:#fff;stroke:#9db0bb;stroke-width:2}.mcu{fill:#edf8fa;stroke:#168da4;stroke-width:3}.sensor{fill:#f0f9f3;stroke:#3e9b6b}.actuator{fill:#f7f3ff;stroke:#7c61b5}.power{fill:#fff4f3;stroke:#cf4e56}.warn{fill:#fff7df;stroke:#d49b24;stroke-width:2}.head{font-size:17px;font-weight:800}.small{font-size:12px}.tiny{font-size:11px;fill:#4f6571}.pin{font-family:Consolas,monospace;font-size:12px;font-weight:700}.data-line{fill:none;stroke:#168da4;stroke-width:3}.power-line{fill:none;stroke:#cf4e56;stroke-width:4}.ground-line{fill:none;stroke:#354a57;stroke-width:3}.motor-line{fill:none;stroke:#7252a6;stroke-width:4}.unknown-line{fill:none;stroke:#d49b24;stroke-width:4;stroke-dasharray:11 8}.bus-label{font-size:11px;font-weight:700;paint-order:stroke;stroke:#fff;stroke-width:5;stroke-linejoin:round}.note{font-size:12px;font-weight:700;fill:#9b6810}.badge{font-size:11px;font-weight:800;fill:#fff}.divider{stroke:#cbd6dc;stroke-width:1}
+    </style>
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#168da4"/></marker>
+    <marker id="arrowPurple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#7252a6"/></marker>
+  </defs>
+
+  <rect width="1400" height="960" fill="#f4f7f8"/>
+  <text x="42" y="48" class="title">SEA STARS · STM32 bağlantı planı</text>
+  <text x="42" y="73" class="subtitle">BNO055/BNO085 aktif · D300 opsiyonel ve otonomide kullanılmıyor · v3.4 · 2026-08-01</text>
+  <rect x="960" y="28" width="398" height="58" rx="10" class="warn"/>
+  <text x="979" y="52" class="note">ESC PWM GPIO'LARI DOĞRULANDI</text>
+  <text x="979" y="72" class="tiny">Canlı SWD: PA6/CH1 + PA7/CH2 · 50 Hz · 1500 µs nötr</text>
+
+  <!-- Power source -->
+  <rect x="42" y="120" width="240" height="166" rx="14" class="box power"/>
+  <text x="62" y="149" class="head">Güç dağıtımı</text>
+  <line x1="62" y1="160" x2="262" y2="160" class="divider"/>
+  <text x="62" y="186" class="small">Batarya → ana sigorta</text>
+  <text x="62" y="209" class="small">→ fiziksel kill switch</text>
+  <text x="62" y="232" class="small">→ motor PDB (ESC + VMOT)</text>
+  <text x="62" y="255" class="small">→ ayrı regüle 5 V mantık</text>
+  <text x="62" y="276" class="tiny">Yıldız GND · motor akımı sensör GND'den geçmez</text>
+
+  <!-- MCU -->
+  <rect x="430" y="112" width="500" height="415" rx="18" class="box mcu"/>
+  <rect x="450" y="132" width="154" height="26" rx="13" fill="#168da4"/>
+  <text x="467" y="150" class="badge">KONTROL KARTI</text>
+  <text x="450" y="190" class="head">NUCLEO-L152RE · STM32L152RET6</text>
+  <line x1="450" y1="205" x2="910" y2="205" class="divider"/>
+  <text x="460" y="238" class="pin">PA10 / D2</text><text x="610" y="238" class="small">Tank 1 STEP</text>
+  <text x="460" y="270" class="pin">PB3 / D3</text><text x="610" y="270" class="small">Tank 1 DIR</text>
+  <text x="460" y="302" class="pin">PB5 / D4</text><text x="610" y="302" class="small">Tank 2 STEP</text>
+  <text x="460" y="334" class="pin">PB4 / D5</text><text x="610" y="334" class="small">Tank 2 DIR</text>
+  <text x="460" y="366" class="pin">PB8 / D15</text><text x="610" y="366" class="small">I2C1 SCL · yalnız IMU C</text>
+  <text x="460" y="398" class="pin">PB9 / D14</text><text x="610" y="398" class="small">I2C1 SDA · yalnız IMU D</text>
+  <text x="460" y="430" class="pin">PB10</text><text x="610" y="430" class="small">I2C2 SCL · D300 yeşil</text>
+  <text x="460" y="462" class="pin">PB11</text><text x="610" y="462" class="small">I2C2 SDA · bu sensörde mavi</text>
+  <text x="460" y="494" class="pin">PA2 / PA3</text><text x="610" y="494" class="small">USART2 · ST-LINK VCP</text>
+  <rect x="745" y="222" width="150" height="75" rx="9" class="warn"/>
+  <text x="759" y="245" class="pin">PA6 · TIM3_CH1</text>
+  <text x="759" y="266" class="pin">PA7 · TIM3_CH2</text>
+  <text x="759" y="287" class="tiny">CANLI DOĞRULAMA</text>
+
+  <!-- Sensors -->
+  <rect x="1045" y="128" width="310" height="170" rx="14" class="box sensor"/>
+  <text x="1065" y="157" class="head">D300 · OPSİYONEL</text>
+  <line x1="1065" y1="168" x2="1335" y2="168" class="divider"/>
+  <text x="1065" y="194" class="pin">VCC 5 V</text>
+  <text x="1065" y="218" class="pin">SCL ← PB10 · SDA ↔ PB11</text>
+  <text x="1065" y="242" class="pin">I2C 0x76 · lojik 3.3 V</text>
+  <text x="1065" y="264" class="tiny">4.7 kΩ pull-up → 3V3 · 5 V I2C bağlanmaz</text>
+  <text x="1065" y="286" class="note">OTONOMİ / DERİNLİK KONTROLÜNDE YOK</text>
+
+  <rect x="1045" y="326" width="310" height="162" rx="14" class="box sensor"/>
+  <text x="1065" y="355" class="head">4 pin IMU · BNO055 / BNO085</text>
+  <line x1="1065" y1="366" x2="1335" y2="366" class="divider"/>
+  <text x="1065" y="392" class="pin">+ → 3.3 V · - → GND</text>
+  <text x="1065" y="416" class="pin">C / SCL ← PB8 · D / SDA ↔ PB9</text>
+  <text x="1065" y="440" class="pin">Auto: 0x28/29 · 0x4A/4B</text>
+  <text x="1065" y="464" class="pin">I2C · BNO085 P0/P1=LOW</text>
+
+  <!-- Sensor lines -->
+  <path d="M930 430 H990 V212 H1045" class="data-line" marker-end="url(#arrowBlue)"/>
+  <path d="M930 462 H1010 V232 H1045" class="data-line" marker-end="url(#arrowBlue)"/>
+  <text x="951" y="314" class="bus-label" fill="#168da4">OPSİYONEL D300 · I2C2</text>
+  <path d="M930 366 H1026 V416 H1045" class="data-line" marker-end="url(#arrowBlue)"/>
+  <path d="M930 398 H1000 V440 H1045" class="data-line" marker-end="url(#arrowBlue)"/>
+  <text x="958" y="448" class="bus-label" fill="#168da4">IMU · I2C1</text>
+
+  <!-- Computer -->
+  <rect x="42" y="350" width="240" height="105" rx="14" class="box"/>
+  <text x="62" y="381" class="head">Kontrol bilgisayarı</text>
+  <text x="62" y="408" class="small">USB · ST-LINK VCP</text>
+  <text x="62" y="432" class="pin">115200 baud</text>
+  <path d="M282 404 H355 V494 H430" class="data-line" marker-end="url(#arrowBlue)"/>
+
+  <!-- Stepper drivers -->
+  <rect x="112" y="600" width="280" height="135" rx="14" class="box actuator"/>
+  <text x="132" y="630" class="head">Step sürücü 1</text>
+  <text x="132" y="656" class="pin">STEP ← PA10 · DIR ← PB3</text>
+  <text x="132" y="680" class="small">VMOT → sigortalı motor gücü</text>
+  <text x="132" y="704" class="tiny">EN / VDD / microstep: model bekleniyor</text>
+  <rect x="112" y="780" width="280" height="100" rx="14" class="box actuator"/>
+  <text x="132" y="811" class="head">Balast step motoru 1</text>
+  <text x="132" y="840" class="small">A+/A-/B+/B- sürücü datasheet'ine göre</text>
+
+  <rect x="454" y="600" width="280" height="135" rx="14" class="box actuator"/>
+  <text x="474" y="630" class="head">Step sürücü 2</text>
+  <text x="474" y="656" class="pin">STEP ← PB5 · DIR ← PB4</text>
+  <text x="474" y="680" class="small">VMOT → sigortalı motor gücü</text>
+  <text x="474" y="704" class="tiny">EN / VDD / microstep: model bekleniyor</text>
+  <rect x="454" y="780" width="280" height="100" rx="14" class="box actuator"/>
+  <text x="474" y="811" class="head">Balast step motoru 2</text>
+  <text x="474" y="840" class="small">A+/A-/B+/B- sürücü datasheet'ine göre</text>
+
+  <!-- ESCs -->
+  <rect x="816" y="600" width="240" height="135" rx="14" class="box actuator"/>
+  <text x="836" y="630" class="head">ESC 1 · çift yönlü</text>
+  <text x="836" y="656" class="pin">PWM ← PA6 / TIM3_CH1</text>
+  <text x="836" y="680" class="tiny">D12 · 1500 µs nötr</text>
+  <text x="836" y="706" class="small">Güç → motor PDB</text>
+  <rect x="816" y="780" width="240" height="100" rx="14" class="box actuator"/>
+  <text x="836" y="811" class="head">Fırçasız motor 1</text>
+  <text x="836" y="840" class="small">ESC üç faz çıkışı</text>
+
+  <rect x="1110" y="600" width="240" height="135" rx="14" class="box actuator"/>
+  <text x="1130" y="630" class="head">ESC 2 · çift yönlü</text>
+  <text x="1130" y="656" class="pin">PWM ← PA7 / TIM3_CH2</text>
+  <text x="1130" y="680" class="tiny">D11 · 1500 µs nötr</text>
+  <text x="1130" y="706" class="small">Güç → motor PDB</text>
+  <rect x="1110" y="780" width="240" height="100" rx="14" class="box actuator"/>
+  <text x="1130" y="811" class="head">Fırçasız motor 2</text>
+  <text x="1130" y="840" class="small">ESC üç faz çıkışı</text>
+
+  <!-- Actuator signal lines -->
+  <path d="M510 502 V548 H252 V600" class="data-line" marker-end="url(#arrowBlue)"/>
+  <text x="270" y="565" class="bus-label" fill="#168da4">PA10 + PB3</text>
+  <path d="M650 502 V566 H594 V600" class="data-line" marker-end="url(#arrowBlue)"/>
+  <text x="602" y="585" class="bus-label" fill="#168da4">PB5 + PB4</text>
+  <path d="M820 297 V525 H936 V600" class="data-line" marker-end="url(#arrowBlue)"/>
+  <path d="M866 297 V510 H1230 V600" class="data-line" marker-end="url(#arrowBlue)"/>
+  <text x="952" y="529" class="bus-label" fill="#168da4">PA6 + PA7 PWM</text>
+  <path d="M252 735 V780" class="motor-line" marker-end="url(#arrowPurple)"/>
+  <path d="M594 735 V780" class="motor-line" marker-end="url(#arrowPurple)"/>
+  <path d="M936 735 V780" class="motor-line" marker-end="url(#arrowPurple)"/>
+  <path d="M1230 735 V780" class="motor-line" marker-end="url(#arrowPurple)"/>
+
+  <!-- Power rails -->
+  <path d="M282 190 H340 V104 H1190 V128" class="power-line"/>
+  <text x="735" y="99" class="bus-label" fill="#cf4e56">REGÜLE 5 V → MCU (+ OPSİYONEL D300)</text>
+  <path d="M282 232 H310 V755 H1270" class="power-line"/>
+  <path d="M252 755 V735 M594 755 V735 M936 755 V735 M1230 755 V735" class="power-line"/>
+  <text x="84" y="748" class="bus-label" fill="#cf4e56">SİGORTALI MOTOR GÜCÜ / VMOT</text>
+  <path d="M430 482 H380 V918 H1350" class="ground-line"/>
+  <text x="400" y="938" class="bus-label" fill="#354a57">ORTAK SİNYAL GND · YILDIZ NOKTA</text>
+
+  <rect x="42" y="900" width="330" height="34" rx="7" fill="#168da4"/>
+  <text x="60" y="922" class="badge">PWM PİNLERİ CANLI SWD İLE DOĞRULANDI</text>
+</svg>

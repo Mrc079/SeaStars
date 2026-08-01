@@ -1,0 +1,18 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+runtime/
+seastars_state.json
+
+# IDE and local workspace metadata
+STM32_otonomi/.metadata/
+
+# Reproducible firmware build intermediates; keep flashable releases.
+STM32_otonomi/Firmware/Build/*
+!STM32_otonomi/Firmware/Build/BUILD_INFO.txt
+!STM32_otonomi/Firmware/Build/seastars_stm32l152re.bin
+!STM32_otonomi/Firmware/Build/seastars_stm32l152re.hex
+
+# Local archive/backup bundles
+*.zip

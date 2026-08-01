@@ -1,0 +1,6 @@
+﻿Firmware: Sea Stars STM32L152RE 2026-08-02 00:45:44
+Target: NUCLEO-L152RE / STM32L152RETx
+Binary: C:\Users\mmira\OneDrive\Masaüstü\SeaStarts\STM32_otonomi\Firmware\Build\seastars_stm32l152re.bin
+Bytes: 58188
+SHA256: D2E202033A237EABBDDE5CDDD14AEA4AF2E9EEA1E0165F9CA967D441548CA994
+Toolchain: arm-none-eabi-gcc.exe (GNU Tools for STM32 14.3.rel1.20251027-0700) 14.3.1 20250623
